@@ -17,5 +17,5 @@ spec:
   resources:
     requests:
       storage: 500Mi
-  storageClassName: ibmc-file-gold
+  storageClassName: ibmc-file-gold-gid
   volumeMode: Filesystem
