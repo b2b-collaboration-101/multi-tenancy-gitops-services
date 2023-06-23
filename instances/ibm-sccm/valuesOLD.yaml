@@ -12,7 +12,7 @@ ibm-sccm:
 
   image:
     repository: "cp.icr.io/cp/ibm-scc/ibmscc"
-    tag: "6.3.0.0_ifix03_2023-06-09"
+    tag: "621_ifix06"
     imageSecrets: "ibm-entitlement-key"
     digest:
       enabled: false
@@ -34,26 +34,18 @@ ibm-sccm:
       name: "swing-console"
       port: 58080
       protocol: "TCP"
-      # for network policy
-      allowIngressTraffic: true
     webConsole:
       name: "web-console"
       port: 58082
       protocol: "TCP"
-      # for network policy
-      allowIngressTraffic: true
     swingConsoleSecure:
       name: "swing-console-secure"
       port: 58081
       protocol: "TCP"
-      # for network policy
-      allowIngressTraffic: true
     webConsoleSecure:
       name: "web-console-secure"
       port: 58083
       protocol: "TCP"
-      # for network policy
-      allowIngressTraffic: true
     externalIP: ""
     # Specify this to set annotations 
     annotations: {}
@@ -63,11 +55,10 @@ ibm-sccm:
 
   ccArgs:
     appUserUID: "1010"
+    appUserGID: "1010"
     ccInterval: "2h"
-    # This variable will be used to drop tables for fresh install in dev environment
-    devEnvDropTables: "true"
-    #Use this flag to enable auto rebalance of monitored servers when scaled up
-    enableAutoRebalanceServers: "false"
+    nprocLimit: "1048576"
+    nofileLimit: "1048576"
 
     #Control center database information
     productEntitilement: "CCD,CCM"
@@ -135,7 +126,7 @@ ibm-sccm:
   resources: 
     limits:
       cpu: 3000m
-      memory: 8Gi
+      memory: 4Gi
     requests:
       cpu: 1500m
       memory: 2Gi
@@ -208,7 +199,6 @@ ibm-sccm:
     minReplicas: 1
     maxReplicas: 2
     targetCPUUtilizationPercentage: 60
-    targetMemoryUtilizationPercentage: 70
 
   arch: "amd64"
 
@@ -219,33 +209,3 @@ ibm-sccm:
   # Specify the license edition as per license agreement. Valid value is prod or non-prod for Production and 
   # Non-production respectively. Remember that this parameter is crucial for IBM Licensing and Metering Service
   licenseType: non-prod
-
-# Customer can use extra init containers to make 
-# certain resources available for main container
-extraInitContainers: []
-#  - name: "copy-resources"
-#    repository: "cp.icr.io/cp/ibm-scc/ibmscc"
-#    tag: "6.2.1.0_ifix08_2022-09-16"
-#    imageSecrets: "scc-image-secret"
-#    pullPolicy: Always
-#    command: "cp -r /jdbc_drivers/ /app/conf"
-#    digest:
-#      enabled: false
-#      value: sha256:5d3f79d2d4b42dadb3946996cdecc45e6672aa6d77af9d1700818eb2ee8289d0
-# Manage Storage permission 
-storageSecurity:
-  # fsGroup -  Used for controlling access to block storage such as Ceph RBD, iSCSI, and some Cloud storage.
-  fsGroup: ""
-  # supplementalGroups - supplemental Groups IDs are used for controlling access to shared storage like NFS and GlusterFS
-  # Replace supplementalGroup Id with NFS User's groupId if the root squash is enabled on NFS server otherwise volume access will fail
-  supplementalGroups: [65534]
-# can be used when ingress controller is available
-# can be used for rule based access 
-ingress:
-  enabled: false
-  host:
-  controller: "nginx"
-  annotations: {}
-  tls:
-    enabled: false
-    secretName:
